@@ -1,0 +1,91 @@
+const userService = require('../services/user.service');
+const { uploadToCloudinary } = require("../utils/cloudinaryUpload");
+const User = require("../models/user.model");
+
+exports.getProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await userService.getProfile(userId);
+    
+    return res.status(200).json(user);
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.createUser = async (req, res, next) => {
+  try {
+    const data = await userService.createUser(req.body);
+    return res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const data = await userService.getAllUsers();
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getUserById = async (req, res, next) => {
+  try {
+    const data = await userService.getUserById(req.params.id);
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateUser = async (req, res, next) => {
+  try {
+    const data = await userService.updateUser(req.params.id, req.body);
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const data = await userService.deleteUser(req.params.id);
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.updateProfileImage = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const imageUrl = await uploadToCloudinary(req.file.path);
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: imageUrl },
+      { new: true }
+    ).select("-password");
+
+    return res.status(200).json({
+      message: "Profile image updated successfully",
+      user,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+
