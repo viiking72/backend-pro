@@ -3,7 +3,7 @@ const rateLimit = require("express-rate-limit");
 // 1️⃣ Global rate limit (basic protection)
 exports.globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,       // 1 minute
-  max: 100,                       // Max 100 requests per minute per IP
+  max: process.env.NODE_ENV === "production" ? 100 : 1000,                       // Max 100 requests per minute per IP
   message: "Too many requests, please try again later."
 });
 

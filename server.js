@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const helmet = require("helmet");
+
+const errorHandler = require('./src/middlewares/error.middleware')
 
 
 const app = express();
@@ -9,7 +12,10 @@ const app = express();
 // ===== Middlewares =====
 app.use(express.json());   // JSON body parser
 app.use(cors());           // Enable cross-origin
-app.use(morgan('dev'));    // Request logger
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}   // Request logger
+app.use(helmet());
 
 // ======Database=======
 const connectDB = require("./src/config/db");
@@ -26,21 +32,16 @@ app.use('/api', routes);
 
 
 // ===== 404 Handler =====
-app.use((req, res, next) => {
-  return res.status(404).json({
-    error: 'Not Found',
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
     path: req.originalUrl
   });
 });
 
 // ===== Global Error Handler =====
-app.use((err, req, res, next) => {
-  console.error('💥 Error:', err.message);
-
-  return res.status(err.statusCode || 500).json({
-    error: err.message || 'Internal Server Error'
-  });
-});
+app.use(errorHandler);
 
 // ===== Start Server =====
 const PORT = process.env.PORT || 4000;

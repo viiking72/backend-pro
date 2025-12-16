@@ -26,12 +26,48 @@ exports.createUser = async (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const data = await userService.getAllUsers();
-    return res.status(200).json(data);
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Sorting
+    const sortBy = req.query.sortBy || "createdAt";
+    const order = req.query.order === "asc" ? 1 : -1;
+
+    // Filtering
+    const role = req.query.role;
+
+    // ✅ Controller decides HTTP-driven flags
+    const includeDeleted = req.query.includeDeleted === "true";
+
+    const data = await userService.getAllUsers({
+      page,
+      limit,
+      sortBy,
+      order,
+      role,
+      includeDeleted, // ✅ pass explicitly
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: data.users,
+      meta: {
+        page,
+        limit,
+        totalUsers: data.totalUsers,
+        totalPages: data.totalPages,
+      },
+    });
+
   } catch (err) {
     next(err);
   }
 };
+
+
+
+
 
 exports.getUserById = async (req, res, next) => {
   try {
@@ -55,6 +91,20 @@ exports.deleteUser = async (req, res, next) => {
   try {
     const data = await userService.deleteUser(req.params.id);
     return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.restoreUser = async (req, res, next) => {
+  try {
+    const user = await userService.restoreUser(req.params.id);
+
+    return res.status(200).json({
+      message: "User restored successfully",
+      user
+    });
+
   } catch (err) {
     next(err);
   }
