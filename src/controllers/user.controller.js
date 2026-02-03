@@ -1,6 +1,7 @@
 const userService = require('../services/user.service');
 const { uploadToCloudinary } = require("../utils/cloudinaryUpload");
 const User = require("../models/user.model");
+const { invalidateUsersCache } = require("../cache/invalidate");
 
 exports.getProfile = async (req, res, next) => {
   try {
@@ -18,6 +19,7 @@ exports.getProfile = async (req, res, next) => {
 exports.createUser = async (req, res, next) => {
   try {
     const data = await userService.createUser(req.body);
+    invalidateUsersCache();
     return res.status(201).json(data);
   } catch (err) {
     next(err);
@@ -81,6 +83,7 @@ exports.getUserById = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     const data = await userService.updateUser(req.params.id, req.body);
+    invalidateUsersCache();
     return res.status(200).json(data);
   } catch (err) {
     next(err);
@@ -90,6 +93,7 @@ exports.updateUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
   try {
     const data = await userService.deleteUser(req.params.id);
+    invalidateUsersCache();
     return res.status(200).json(data);
   } catch (err) {
     next(err);
@@ -99,6 +103,7 @@ exports.deleteUser = async (req, res, next) => {
 exports.restoreUser = async (req, res, next) => {
   try {
     const user = await userService.restoreUser(req.params.id);
+    invalidateUsersCache();
 
     return res.status(200).json({
       message: "User restored successfully",
@@ -135,7 +140,3 @@ exports.updateProfileImage = async (req, res, next) => {
     next(err);
   }
 };
-
-
-
-

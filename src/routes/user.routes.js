@@ -7,6 +7,8 @@ const { validateCreateUser } = require("../validators/user.validator");
 const { authMiddleware } = require("../middlewares/auth.middleware");
 const { requireAdmin } = require("../middlewares/role.middleware");
 const { updateProfileImage } = require("../controllers/user.controller");
+const { cacheMiddleware } = require("../middlewares/cache.middleware");
+const { buildUsersCacheKey } = require("../cache/keys/users.cacheKey");
 
 // -------- SPECIFIC ROUTES FIRST --------
 
@@ -17,36 +19,18 @@ router.post("/", validateCreateUser, userController.createUser);
 router.get("/me", authMiddleware, userController.getProfile);
 
 // Update logged-in user's profile image
-router.put(
-  "/me/profile-image",
-  authMiddleware,
-  upload.single("image"),
-  updateProfileImage
-);
+router.put("/me/profile-image", authMiddleware, upload.single("image"), updateProfileImage);
 
-// Admin-only route
-// router.get(
-//   "/admin/all-users",
-//   authMiddleware,
-//   requireAdmin,
-//   userController.getAllUsers
-// );
+// Get all users
+router.get('/',authMiddleware, requireAdmin,
+cacheMiddleware(buildUsersCacheKey, 60_000), userController.getAllUsers);
 
 // -------- GENERIC ROUTES LAST --------
 
-// Get all users
-router.get('/',authMiddleware, requireAdmin, userController.getAllUsers);
-
-// User by ID
 // Restore a soft-deleted user (ADMIN ONLY)
-router.patch(
-  "/:id/restore",
-  authMiddleware,
-  requireAdmin,
-  userController.restoreUser
-);
+router.patch("/:id/restore", authMiddleware, requireAdmin, userController.restoreUser);
 
-router.get('/:id', userController.getUserById);
+router.get('/:id', authMiddleware, userController.getUserById);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 

@@ -7,7 +7,7 @@ const tokenRoutes = require('./token.routes');
 const uploadRoutes = require("./upload.routes");
 
 // user routes
-router.use('/users', userRoutes);
+router.use('/users', userRoutes);                                    
 
 //auth routes
 router.use('/auth', authRoutes);

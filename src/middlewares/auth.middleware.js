@@ -16,7 +16,10 @@ exports.authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 4. Attach user to req object
-    req.user = decoded;
+    req.user = {
+      userId: decoded.userId,
+      role: decoded.role
+    };
 
     next();
   } catch (err) {
