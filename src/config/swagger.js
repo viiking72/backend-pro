@@ -22,7 +22,7 @@ const swaggerSpec = swaggerJsdoc({
         }
       }
     },
-    security: [{ bearerAuth: [] }]
+    security: []
   },
   apis: ["./src/routes/*.js"], // important for your structure
 });
