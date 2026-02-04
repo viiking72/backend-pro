@@ -1,3 +1,16 @@
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       401:
+ *         description: Unauthorized
+ */
 const express = require('express');
 const router = express.Router();
 

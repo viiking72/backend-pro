@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require("helmet");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./src/config/swagger");
 
 const errorHandler = require('./src/middlewares/error.middleware')
 
@@ -30,6 +32,7 @@ app.use(globalLimiter);
 const routes = require('./src/routes');
 app.use('/api', routes);
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ===== 404 Handler =====
 app.use((req, res) => {
